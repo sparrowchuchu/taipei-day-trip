@@ -33,6 +33,7 @@ try:
         lng DECIMAL(9, 6),
         images JSON
         )""")
+    cursor.execute("CREATE INDEX mrt_index ON taipei_attractions(mrt)")
 
     for i in data["result"]["results"]:    
         _id= i["_id"]
