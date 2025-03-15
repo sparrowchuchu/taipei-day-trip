@@ -57,7 +57,6 @@ async def api_attractions(page: Annotated[int, Query(ge=0)],
 			"images": json.loads(result[9])
 			}
 			data.append(dict)
-		print(data)
 		return JSONResponse({"nextPage":next_page,"data": data})
 
 @app.get("/api/attraction/{attractionId}")
