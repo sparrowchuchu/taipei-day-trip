@@ -41,6 +41,15 @@ async def api_attractions(page: Annotated[int, Query(ge=0)],
 		if not results:
 			message = "查無資料"
 			return JSONResponse(status_code=400, content={"error": True, "message": message})
+	except Exception as e:
+		print(f"Error: {e}")
+		raise HTTPException(
+			status_code=500,
+			detail={
+				"error": True,
+				"message": "請按照情境提供對應的錯誤訊息"
+			}
+		)
 	except:
 		message = "伺服器內部錯誤"
 		return JSONResponse(status_code=500, content={"error": True, "message": message})
@@ -77,6 +86,15 @@ async def api_attraction(attractionId: Annotated[int, Path(...)]):
 		if result == None:
 			message = "景點編號不正確"
 			return JSONResponse(status_code=400, content={"error": True, "message": message})
+	except Exception as e:
+		print(f"Error: {e}")
+		raise HTTPException(
+			status_code=500,
+			detail={
+				"error": True,
+				"message": "請按照情境提供對應的錯誤訊息"
+			}
+		)
 	except:
 		message = "伺服器內部錯誤"
 		return JSONResponse(status_code=500, content={"error": True, "message": message})
@@ -100,12 +118,19 @@ async def api_mrts():
 	try:
 		cnx = get_db_connection(password)
 		cursor = cnx.cursor()
-		print("✅ 資料庫連線成功！")
 		cursor.execute("SELECT mrt FROM taipei_attractions WHERE mrt IS NOT NULL GROUP BY mrt ORDER BY COUNT(mrt) DESC")
 		results = cursor.fetchall()
-		print("✅ 資料查詢成功！")
 		cursor.close()
 		cnx.close()
+	except Exception as e:
+		print(f"Error: {e}")
+		raise HTTPException(
+            status_code=500,
+            detail={
+                "error": True,
+                "message": "請按照情境提供對應的錯誤訊息"
+            }
+        )
 	except:
 		message = "伺服器內部錯誤"
 		return JSONResponse(status_code=500, content={"error": True, "message": message})
