@@ -9,7 +9,7 @@ from typing import Annotated, Optional
 
 app=FastAPI()
 
-load_dotenv(dotenv_path='../.env')
+load_dotenv()
 password = os.getenv("PASSWORD")
 
 def get_db_connection(password):
@@ -29,13 +29,11 @@ async def api_attractions(page: Annotated[int, Query(ge=0)],
 	try:
 		cnx = get_db_connection(password)
 		cursor = cnx.cursor()
-		print("✅ 資料庫連線成功！")
 		if keyword == None:
 			cursor.execute("SELECT * FROM taipei_attractions LIMIT %s OFFSET %s", (limit, offset))
 		else:
 			cursor.execute("SELECT * FROM taipei_attractions WHERE mrt LIKE %s OR name LIKE %s LIMIT %s OFFSET %s", ("%" + keyword + "%", "%" + keyword + "%", limit, offset))
 		results = cursor.fetchall()
-		print("✅ 資料查詢成功！")
 		cursor.close()
 		cnx.close()
 		if not results:
@@ -77,10 +75,8 @@ async def api_attraction(attractionId: Annotated[int, Path(...)]):
 	try:
 		cnx = get_db_connection(password)
 		cursor = cnx.cursor()
-		print("✅ 資料庫連線成功！")
 		cursor.execute("SELECT * FROM taipei_attractions WHERE id = %s", (attractionId,))
 		result = cursor.fetchone()
-		print("✅ 資料查詢成功！")
 		cursor.close()
 		cnx.close()
 		if result == None:
@@ -135,10 +131,8 @@ async def api_mrts():
 		message = "伺服器內部錯誤"
 		return JSONResponse(status_code=500, content={"error": True, "message": message})
 	else:
-		data = results
+		data = [mrt[0] for mrt in results]
 		return JSONResponse({"data": data})
-
-
 
 
 
@@ -157,3 +151,6 @@ async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
 
 
+
+if __name__ == "__main__":
+	os.system("uvicorn app:app --reload")
