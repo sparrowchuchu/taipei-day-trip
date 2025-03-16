@@ -29,11 +29,15 @@ async def api_attractions(page: Annotated[int, Query(ge=0)],
 	try:
 		cnx = get_db_connection(password)
 		cursor = cnx.cursor()
+		print("✅ 資料庫連線成功！")
 		if keyword == None:
 			cursor.execute("SELECT * FROM taipei_attractions LIMIT %s OFFSET %s", (limit, offset))
 		else:
 			cursor.execute("SELECT * FROM taipei_attractions WHERE mrt LIKE %s OR name LIKE %s LIMIT %s OFFSET %s", ("%" + keyword + "%", "%" + keyword + "%", limit, offset))
 		results = cursor.fetchall()
+		print("✅ 資料查詢成功！")
+		cursor.close()
+		cnx.close()
 		if not results:
 			message = "查無資料"
 			return JSONResponse(status_code=400, content={"error": True, "message": message})
@@ -64,8 +68,12 @@ async def api_attraction(attractionId: Annotated[int, Path(...)]):
 	try:
 		cnx = get_db_connection(password)
 		cursor = cnx.cursor()
+		print("✅ 資料庫連線成功！")
 		cursor.execute("SELECT * FROM taipei_attractions WHERE id = %s", (attractionId,))
 		result = cursor.fetchone()
+		print("✅ 資料查詢成功！")
+		cursor.close()
+		cnx.close()
 		if result == None:
 			message = "景點編號不正確"
 			return JSONResponse(status_code=400, content={"error": True, "message": message})
@@ -92,8 +100,12 @@ async def api_mrts():
 	try:
 		cnx = get_db_connection(password)
 		cursor = cnx.cursor()
+		print("✅ 資料庫連線成功！")
 		cursor.execute("SELECT mrt FROM taipei_attractions WHERE mrt IS NOT NULL GROUP BY mrt ORDER BY COUNT(mrt) DESC")
 		results = cursor.fetchall()
+		print("✅ 資料查詢成功！")
+		cursor.close()
+		cnx.close()
 	except:
 		message = "伺服器內部錯誤"
 		return JSONResponse(status_code=500, content={"error": True, "message": message})
@@ -120,5 +132,3 @@ async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
 
 
-if __name__ ==  "__main__":
-    os.system("uvicorn app:app --host 0.0.0.0 --port 8000")
