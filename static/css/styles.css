@@ -125,7 +125,7 @@ main{
     padding: 9px 15px 9px 0px;
 }
 
-.list-bar__item{
+.list-bar__items{
     margin: 13px 10px;
     display: flex;
     align-items: center;
@@ -155,8 +155,13 @@ main{
 }
 
 .attraction-card__image{
-    width: 100%; 
+    width: 100%; height: 197px;
     position: relative;
+}
+
+.attraction-card__image img{
+    width: 100%; height: 100%;
+    object-fit: cover;
 }
 
 .attraction-card__title{
