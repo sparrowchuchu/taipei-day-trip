@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 18 13:14:40 2025
-
-@author: User
-"""
-
 from dotenv import load_dotenv
 import os
 import mysql.connector
