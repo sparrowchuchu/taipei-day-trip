@@ -5,9 +5,11 @@ import json
 from fastapi import *
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from typing import Annotated, Optional
 
 app=FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 load_dotenv()
 password = os.getenv("PASSWORD")

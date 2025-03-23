@@ -11,3 +11,7 @@ leftBtn.addEventListener('click', () => {
 rightBtn.addEventListener('click', () => {
   itemList.scrollBy({ left: 200, behavior: 'smooth' });
 });
+
+
+
+
