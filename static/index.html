@@ -3,9 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+  <script defer src="/static/js/api.js"></script>
   <title>Index</title>
 </head>
 <body>
-  
+  <nav>
+    <div class="nav__title">台北一日遊</div>
+    <ul class="mod-desktop nav__list">
+        <li>預定行程</li>
+        <li>登入/註冊</li>
+    </ul>
+  </nav>
+  <header>
+    <img class="header__image" src="/static/images/welcome.png" alt="台北101">
+    <div class="header__container">
+        <div class="header__title">輕鬆享受台北一日悠閒</div>
+        <div class="header__text">探索每個角落，體驗城市的深度旅遊行程</div>
+        <div class="header__search-bar">
+          <input class="search-bar__input" type="text" placeholder="輸入景點名稱查詢">
+          <button class="search-bar__button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 26 26" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="23" y1="23" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+    </div>
+  </header>
+  <main>
+    <div class="list-bar">
+      <div class="list-bar__left-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" stroke="#666666" stroke-width="1" fill="none"/>
+          <path d="M14 17l-5-5 5-5" fill="none" stroke="#666666" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="list-bar__items">
+        <!-- Append list-bar__mrt here -->
+      </div>
+      <div class="list-bar__right-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" stroke="#666666" stroke-width="1" fill="none"/>
+          <path d="M10 17l5-5-5-5" fill="none" stroke="#666666" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="attraction-grid">
+      <!-- Append attraction-cards here -->
+    </div>
+  </main>
+  <div class="loadTrigger"></div>
+  <footer>
+    <div class="copyright">
+      <p>COPYRIGHT © 2021 台北一日遊</p>
+    </div>
+  </footer>
 </body>
 </html>
+
+
+

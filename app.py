@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 18 13:14:40 2025
-
-@author: User
-"""
-
 from dotenv import load_dotenv
 import os
 import mysql.connector
@@ -12,9 +5,11 @@ import json
 from fastapi import *
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from typing import Annotated, Optional
 
 app=FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 load_dotenv()
 password = os.getenv("PASSWORD")
