@@ -82,19 +82,16 @@ const observer = new IntersectionObserver(async (entries) => {
       observer.disconnect();  // 若無更多資料，自動停止監聽
       return;
     }
-    // console.log(nextPage);
     isLoading = true;  // 開始請求，避免重複觸發
     let apiUrl = '';
     keyword = searchInput.value.trim(); 
-    // console.log(keyword);
     if (keyword){
       apiUrl = `./api/attractions?page=${nextPage}&keyword=${keyword}`;
     }else{
       apiUrl = `./api/attractions?page=${nextPage}`;
     }
-    // console.log(apiUrl);
+
     attractions = await getApiAttractions(apiUrl);
-    // console.log(attractions);
     setAttractionItem(attractions);
     isLoading = false;  // 請求結束
   }
@@ -102,11 +99,9 @@ const observer = new IntersectionObserver(async (entries) => {
 
 const searchKeyword = async () =>{
   keyword = searchInput.value.trim(); 
-  // console.log(keyword);
   nextPage = 0;
   let apiUrl = `./api/attractions?page=${nextPage}&keyword=${keyword}`;
   let attractions = await getApiAttractions(apiUrl);
-  // console.log(attractions);
   while (attractionGrid.firstChild) {
     attractionGrid.removeChild(attractionGrid.firstChild);
   }
@@ -114,40 +109,43 @@ const searchKeyword = async () =>{
   observer.observe(loadTrigger);
 }
 
+if (itemList){
+  window.addEventListener('DOMContentLoaded', async () => {
+    let mrtsData = await getApiMrts();
+    setListItem(mrtsData);
+    let apiUrl = `./api/attractions?page=${nextPage}`;
+    let attractions = await getApiAttractions(apiUrl);
+    setAttractionItem(attractions);
+    observer.observe(loadTrigger);
+  });
+  
+  itemList.addEventListener('click', (event) =>{
+    if(event.target.className === 'list-bar__mrt'){
+      let keyword = event.target.innerText;
+      searchInput.value = keyword;
+      searchKeyword();
+    }
+  });
+  
+  leftBtn.addEventListener('click', () => {
+    itemList.scrollBy({ left: -200, behavior: 'smooth' });
+  });
+  
+  rightBtn.addEventListener('click', () => {
+    itemList.scrollBy({ left: 200, behavior: 'smooth' });
+  });
+}
 
-window.addEventListener('DOMContentLoaded', async () => {
-  let mrtsData = await getApiMrts();
-  setListItem(mrtsData);
-  // console.log("DOMContentLoaded", nextPage);
-  let apiUrl = `./api/attractions?page=${nextPage}`;
-  let attractions = await getApiAttractions(apiUrl);
-  setAttractionItem(attractions);
-  observer.observe(loadTrigger);
-});
-
-itemList.addEventListener('click', (event) =>{
-  if(event.target.className === 'list-bar__mrt'){
-    let keyword = event.target.innerText;
-    searchInput.value = keyword;
-    searchKeyword();
-  }
-});
-
-leftBtn.addEventListener('click', () => {
-  itemList.scrollBy({ left: -200, behavior: 'smooth' });
-});
-
-rightBtn.addEventListener('click', () => {
-  itemList.scrollBy({ left: 200, behavior: 'smooth' });
-});
-
-searchBtn.addEventListener('click', searchKeyword);
+if(searchBtn){
+  searchBtn.addEventListener('click', searchKeyword);
 
 searchInput.addEventListener('keydown', function(event){
   if(event.key==="Enter"){
     searchKeyword();
   }
 });
+}
+
 
 
 

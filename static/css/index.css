@@ -15,7 +15,6 @@
 body{
     margin:0 auto; padding:0px;
     overscroll-behavior-x: none;
-    /* overflow-x: hidden; */
     box-sizing: border-box;
     font-size: var(--font-16px);
     font-family: "Noto Sans TC", sans-serif;
@@ -29,7 +28,9 @@ nav{
     padding: 10px;
     display: flex;
     justify-content: space-between;
-    align-items: center;}
+    align-items: center;
+    border-bottom: 1px solid var(--color-gray20);
+}
 
 nav> ul{
     display: flex; 
@@ -249,6 +250,5 @@ footer{
         object-fit: cover;
     }
 }
-
 
 
