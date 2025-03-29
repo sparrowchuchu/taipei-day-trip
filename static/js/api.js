@@ -5,7 +5,6 @@ const attractionGrid = document.querySelector('.attraction-grid');
 const loadTrigger = document.querySelector('.loadTrigger');
 const searchInput = document.querySelector('.search-bar__input');
 const searchBtn = document.querySelector('.search-bar__button');
-let attractions;
 let keyword = '';
 let nextPage = 0;
 let isLoading = false;
@@ -20,7 +19,7 @@ const getApiMrts = async () =>{
       console.log("error: ", err);
   }
 }
-  
+
 const getApiAttractions = async (apiUrl) =>{
   try{
       let response = await fetch(apiUrl);  // 回傳promise
@@ -49,6 +48,8 @@ const setAttractionItem = (data) => {
   nextPage = data['nextPage'];
   data['data'].forEach((attraction) => {
     let newDivCard = document.createElement('div');
+    let newA = document.createElement('a');
+    let attractionId = attraction['id'];
     let newDivImg = document.createElement('div');
     let newImg = document.createElement('img');
     let newDivTitle = document.createElement('div');
@@ -56,6 +57,7 @@ const setAttractionItem = (data) => {
     let newDivMrt = document.createElement('div');
     let newDivCategory = document.createElement('div');
     newDivCard.className = 'attraction-card';
+    newA.href = `./attraction/${attractionId}`; 
     newDivImg.className = 'attraction-card__image';
     newImg.src = attraction['images'][0];
     newDivTitle.className = 'attraction-card__title';
@@ -66,7 +68,8 @@ const setAttractionItem = (data) => {
     newDivCategory.className = 'attraction-card__category';
     newDivCategory.innerText = attraction['category'];
     attractionGrid.appendChild(newDivCard);
-    newDivCard.appendChild(newDivImg);
+    newDivCard.appendChild(newA);
+    newA.appendChild(newDivImg);
     newDivImg.appendChild(newImg);
     newDivImg.appendChild(newDivTitle);
     newDivCard.appendChild(newDivContent);
@@ -90,8 +93,7 @@ const observer = new IntersectionObserver(async (entries) => {
     }else{
       apiUrl = `./api/attractions?page=${nextPage}`;
     }
-
-    attractions = await getApiAttractions(apiUrl);
+    let attractions = await getApiAttractions(apiUrl);
     setAttractionItem(attractions);
     isLoading = false;  // 請求結束
   }
@@ -136,14 +138,13 @@ if (itemList){
   });
 }
 
-if(searchBtn){
+if(searchBtn && searchInput){
   searchBtn.addEventListener('click', searchKeyword);
-
-searchInput.addEventListener('keydown', function(event){
-  if(event.key==="Enter"){
-    searchKeyword();
-  }
-});
+  searchInput.addEventListener('keydown', function(event){
+    if(event.key === "Enter"){
+      searchKeyword();
+    }
+  });
 }
 
 
