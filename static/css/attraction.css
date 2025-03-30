@@ -37,17 +37,21 @@ label{
 .carousel{
     position: relative;
     width: inherit; height: inherit;
+    overflow: hidden;
 }
 
-.carousel__item{
-    display: none;
+.carousel__container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel__item {
+    flex: 0 0 100%; 
     width: 100%; height: 100%;
     border-radius: 5px;
     object-fit: cover;
-}
-
-.carousel__item.active {
-    display: block;
 }
 
 .carousel__previous-flipper{

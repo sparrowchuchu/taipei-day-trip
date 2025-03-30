@@ -1,14 +1,16 @@
 const bookingForm = document.forms['booking-form'];
 const prevBtn = document.querySelector('.carousel__previous-flipper');
 const nextBtn = document.querySelector('.carousel__next-flipper');
+// const carousel = document.querySelector('.carousel');
+const imgContainer = document.querySelector('.carousel__container');
 const dotContainer = document.querySelector('.carousel__dotlist');
 const url = new URL(window.location.href);
 let currentIndex = 0;
 
 const setAttractionInfo = async (attraction) => {
     let data = attraction.data;
-    let imgContainer = document.querySelector('.carousel');
-    console.log(data.images);
+    // let imgContainer = document.querySelector('.carousel__container');
+    // let dotContainer = document.querySelector('.carousel__dotlist');
     data.images.forEach((src, index) => {
         let img = document.createElement("img");
         img.className = "carousel__item";
@@ -36,16 +38,34 @@ const setAttractionInfo = async (attraction) => {
 };
 
 const updateCarousel = (index) => {
-    let imgList = document.querySelectorAll('.carousel__item');
     let dotList = document.querySelectorAll('.dotlist__dot svg circle');
-    imgList[currentIndex].classList.remove("active"); 
-    dotList[currentIndex].setAttribute("stroke", "none");
-    dotList[currentIndex].setAttribute("fill", "rgba(255, 255, 255, 0.75)");
     currentIndex = index;
-    imgList[currentIndex].classList.add("active");
-    dotList[currentIndex].setAttribute("stroke", "rgba(255, 255, 255, 0.75)");
-    dotList[currentIndex].setAttribute("fill", "rgba(0, 0, 0, 0.75)");
+
+    imgContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    dotList.forEach((dot, i) => {
+        dot.setAttribute("stroke", i === currentIndex ? "rgba(255, 255, 255, 0.75)" : "none");
+        dot.setAttribute("fill", i === currentIndex ? "rgba(0, 0, 0, 0.75)" : "rgba(255, 255, 255, 0.75)");
+    });
 };
+
+// const updateCarousel = (index) => {
+//     let imgList = document.querySelectorAll('.carousel__item');
+//     let dotList = document.querySelectorAll('.dotlist__dot svg circle');
+//     imgList[currentIndex].classList.remove("active"); 
+//     imgList[currentIndex].classList.add("fade-out");
+//     dotList[currentIndex].setAttribute("stroke", "none");
+//     dotList[currentIndex].setAttribute("fill", "rgba(255, 255, 255, 0.75)");
+//     setTimeout(() => {
+//         imgList[currentIndex].classList.remove("fade-out");
+//         imgList[currentIndex].style.display = "none";
+//         currentIndex = index;
+//         imgList[currentIndex].style.display = "block";
+//         imgList[currentIndex].classList.add("active");
+//         dotList[currentIndex].setAttribute("stroke", "rgba(255, 255, 255, 0.75)");
+//         dotList[currentIndex].setAttribute("fill", "rgba(0, 0, 0, 0.75)");
+//     }, 200); // 時間與 CSS `transition` 一致
+// };
 
 nextBtn.addEventListener('click', () => {
     let nextIndex = (currentIndex + 1) % document.querySelectorAll('.carousel__item').length;
