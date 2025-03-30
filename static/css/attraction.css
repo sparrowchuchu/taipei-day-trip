@@ -5,7 +5,7 @@ input[type="radio"] {
     border: 2px solid var(--color-white);
     background-color: var(--color-white);
     cursor: pointer;
-  }
+}
 
 input[type="radio"]:checked {
     background-color: var(--color-cyan70);
@@ -29,6 +29,7 @@ label{
 
 .content-card__left{
     width: 540px; height: 400px;
+    margin-left: 15px;
     margin-right: 30px;
 }
 
@@ -132,45 +133,38 @@ label{
     margin-top: 25px;
 }
 
-
 @media screen and (max-width:1200px){
     :root {
-        --content-max-weight: 900px; 
+        --content-max-weight: 100vw;
+    }
+    .content-card__left{
+        margin-left: 15px;
+        width: calc(var(--content-max-weight) / 2 - 45px);
+    }
+    .content-card__right{
+        margin: 20px 10px;
+    }
+    .carousel__item {
+        width: 50%; height: 100%;
+    }
+}
+
+@media screen and (max-width:750px){
+    :root {
+        --content-max-weight: 100vw; 
     }
     .content-card{
         display: block;
+        margin-top: 0px;
     }
     .content-card__left{
-        width: 900px; height: 350px;
-        margin: 0px;
+        width: var(--content-max-weight); height: 350px;
     }
     .content-card__right{
-        width: 880px; height: 390px;
-        margin: 20px 10px;
+        width: var(--content-max-weight); height: 390px;
     }
-}
-
-@media screen and (max-width:900px){
-    :root {
-        --content-max-weight: 600px; 
-    }
-    .content-card__left{
-        width: 600px; height: 350px;
-    }
-    .content-card__right{
-        width: 580px; height: 390px;
-    }
-}
-
-@media screen and (max-width:600px){
-    :root {
-        --content-max-weight: 360px; 
-    }
-    .content-card__left{
-        width: 360px; height: 350px;
-    }
-    .content-card__right{
-        width: 340px; height: 390px;
+    .carousel__item {
+        border-radius: 0px;
     }
     .carousel__dotlist{
         gap: 9px;
