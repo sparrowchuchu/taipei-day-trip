@@ -3,9 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="stylesheet" href="/static/css/attraction.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+  <script defer src="/static/js/api.js"></script>
+  <script defer src="/static/js/attractionIdApi.js"></script>
   <title>Attraction</title>
 </head>
 <body>
-  
+  <nav>
+    <div class="nav__container">
+      <a class="nav__title" href="/">台北一日遊</a>
+      <ul class="mod-desktop nav__list">
+          <li>預定行程</li>
+          <li>登入/註冊</li>
+      </ul>
+    </div>
+  </nav>
+  <!-- <hr class="nav__line"> -->
+  <main>
+    <div class="content-card">
+      <div class="content-card__left">
+        <div class="carousel">
+          <div class="carousel__container">
+            <!-- carousel__item" -->
+          </div>
+          <div class="carousel__previous-flipper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" stroke="none" stroke-width="1" fill="rgba(255, 255, 255, 0.75)"/>
+              <path d="M14 17l-5-5 5-5" fill="none" stroke="#666666" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="carousel__next-flipper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" stroke="none" stroke-width="1" fill="rgba(255, 255, 255, 0.75)"/>
+              <path d="M10 17l5-5-5-5" fill="none" stroke="#666666" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="carousel__dotlist">
+            <!-- dotlist__dot -->
+          </div>
+        </div>
+      </div>
+      <div class="content-card__right">
+        <div class="right__title">
+          <!-- name -->
+        </div>
+        <div class="right__sub-title">
+          <!-- category at mrt -->
+        </div>
+        <div class="right__content">
+          <div class="content__title">訂購導覽行程</div>
+          <div class="content__info">以此景點為中心的一日行程，帶您探索城市角落故事</div>
+          <form name="booking-form" action="/booking" method="POST">
+            <div class="content__info">選擇日期：
+              <input type="date">
+            </div>
+            <div class="content__info">選擇時間：
+              <input type="radio" id="morning" name="time" value="morning" checked><label for="morning">上半天</label>
+              <input type="radio" id="afternoon" name="time" value="afternoon"><label for="afternoon">下半天</label>
+            </div>
+            <div class="content__info">導覽費用：
+              <span class="info__price">新台幣 2000 元</span>
+            </div>
+            <button class="content__btn">開始預約行程</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="article">
+      <div class="article__info">
+          <!-- description -->
+      </div>
+      <div class="article__title">景點地址：</div>
+      <div class="article__info">
+        <!-- address -->
+      </div>
+      <div class="article__title">交通方式：</div>
+      <div class="article__info">
+        <!-- transport -->
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="copyright">
+      <p>COPYRIGHT © 2021 台北一日遊</p>
+    </div>
+  </footer>
 </body>
 </html>
