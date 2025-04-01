@@ -1,6 +1,7 @@
 :root{
     --color-cyan70: #448899; 
     --color-white: #ffffff; 
+    --color-black: #000000;
     --color-gray70: #666666; 
     --color-gray50:#757575;
     --color-gray20: #E8E8E8; 
@@ -35,7 +36,8 @@ nav{
 }
 
 .nav__container{
-    max-width: var(--content-max-weight);
+    max-width: calc(var(--content-max-weight) - 20px);
+    height: 54px;
     margin:0 auto;
     padding: 10px;
     display: flex;
@@ -51,7 +53,12 @@ nav{
 .nav__container> ul> li{
     list-style: none; 
     text-align: center; 
-    padding: 10px;
+    padding: 10px 20px;
+}
+
+.nav__container> ul> li:hover{
+    cursor: pointer;
+    color: var(--color-black);
 }
 
 .nav__title{
@@ -85,11 +92,13 @@ header{
     font-size: var(--font-28px);
     font-weight: var(--font-w700);
     margin-bottom: 15px;
+    text-shadow: 1px 1px 40px var(--color-gray50);
 }
 
 .header__text{
     color: var(--color-white);
     margin-bottom: 25px;
+    text-shadow: 1px 1px 30px var(--color-gray50);
 }
 
 .header__search-bar{
@@ -114,6 +123,10 @@ header{
     color: var(--color-gray);
 }
 
+.search-bar__button:hover{
+    cursor: pointer;
+}
+
 main{
     max-width: var(--content-max-weight);
     margin:0 auto 55px;
@@ -136,6 +149,10 @@ main{
     padding: 9px 15px 9px 0px;
 }
 
+.list-bar__right-btn:hover, .list-bar__left-btn:hover{
+    cursor: pointer;
+}
+
 .list-bar__items{
     margin: 13px 10px;
     display: flex;
@@ -147,6 +164,10 @@ main{
 
 .list-bar__mrt{
     margin: 5px 15px;
+}
+.list-bar__mrt:hover{
+    cursor: pointer;
+    color: var(--color-black);
 }
 
 .attraction-grid{

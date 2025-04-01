@@ -61,7 +61,34 @@ try:
 except:
     print("Error: unable to connect to MySQL")
 else:
-    print("Data inserted successfully")
+    print("Data inserted Successfully")
     
 
+try:
+    cnx = mysql.connector.connect(
+        user='root', 
+        password = password,
+        host='127.0.0.1',
+        database='taipei_day_trip'
+    )
+    cursor = cnx.cursor()
 
+    cursor.execute("CREATE DATABASE IF NOT EXISTS taipei_day_trip")
+    cursor.execute("USE taipei_day_trip")
+    cursor.execute("""CREATE TABLE users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL
+        );""")
+    cursor.execute("CREATE INDEX mrt_index ON taipei_attractions(mrt)")
+        
+    cursor.close()
+    cnx.close()
+
+except:
+    print("Error: unable to connect to MySQL")
+else:
+    print("CREATE TABLE users Successfully")
+
+    
