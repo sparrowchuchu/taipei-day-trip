@@ -12,14 +12,13 @@ app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 load_dotenv()
-password = os.getenv("PASSWORD")
 
-def get_db_connection(password):
+def get_db_connection():
 	return mysql.connector.connect(
-		host="127.0.0.1",		
-		user="root",
-		password = password,
-		database="taipei_day_trip"
+		user = os.getenv("MYSQL_USER"), 
+        password = os.getenv("MYSQL_PASSWORD"),
+        host=os.getenv("MYSQL_HOST"),
+        database=os.getenv("MYSQL_DATABASE")
 	)
 
 @app.get("/api/attractions")
@@ -29,114 +28,128 @@ async def api_attractions(page: Annotated[int, Query(ge=0)],
 	limit = 12
 	offset = page * limit
 	try:
-		cnx = get_db_connection(password)
+		cnx = get_db_connection()
 		cursor = cnx.cursor()
-		if keyword == None:
-			cursor.execute("SELECT * FROM taipei_attractions LIMIT %s OFFSET %s", (limit, offset))
+		if keyword:
+			sql_query = """
+                SELECT t.id, t.name, t.category, t.description, t.address, t.transport, 
+                       m.name AS mrt, t.lat, t.lng, t.images
+                FROM taipei_attractions t
+                LEFT JOIN mrt_stations m ON t.mrt_id = m.id
+                WHERE t.name LIKE %s OR m.name LIKE %s
+                LIMIT %s OFFSET %s
+            """
+			cursor.execute(sql_query, ("%" + keyword + "%", "%" + keyword + "%", limit, offset))
 		else:
-			cursor.execute("SELECT * FROM taipei_attractions WHERE mrt LIKE %s OR name LIKE %s LIMIT %s OFFSET %s", ("%" + keyword + "%", "%" + keyword + "%", limit, offset))
+			sql_query = """
+                SELECT t.id, t.name, t.category, t.description, t.address, t.transport, 
+                       m.name AS mrt, t.lat, t.lng, t.images
+                FROM taipei_attractions t
+                LEFT JOIN mrt_stations m ON t.mrt_id = m.id
+                LIMIT %s OFFSET %s
+            """
+			cursor.execute(sql_query, (limit, offset))
+
 		results = cursor.fetchall()
-		cursor.close()
-		cnx.close()
-		if not results:
-			message = "查無資料"
-			return JSONResponse(status_code=400, content={"error": True, "message": message})
+		print(results)
+	
 	except Exception as e:
 		print(f"Error: {e}")
-		raise HTTPException(
-			status_code=500,
-			detail={
-				"error": True,
-				"message": "請按照情境提供對應的錯誤訊息"
-			}
-		)
-	except:
-		message = "伺服器內部錯誤"
-		return JSONResponse(status_code=500, content={"error": True, "message": message})
-	else:
-		next_page = page + 1 if len(results) == limit else None 
-		data = []
-		for result in results:
-			dict = {
-			"id": result[0],
-			"name": result[1],
-			"category": result[2],
-			"description": result[3],
-			"address": result[4],
-			"transport": result[5],
-			"mrt": result[6],
-			"latitude": str(result[7]),
-			"longitude": str(result[8]),
-			"images": json.loads(result[9])
-			}
-			data.append(dict)
-		return JSONResponse({"nextPage":next_page,"data": data})
+		raise JSONResponse(status_code=500, detail={"error": True, "message": "伺服器內部錯誤"})
+	
+	finally:
+		cursor.close()
+		cnx.close()
+
+	if not results:
+			return JSONResponse(status_code=400, content={"error": True, "message": "查無資料"})
+	
+	next_page = page + 1 if len(results) == limit else None 
+	data = []
+	for result in results:
+		dict = {
+		"id": result[0],
+		"name": result[1],
+		"category": result[2],
+		"description": result[3],
+		"address": result[4],
+		"transport": result[5],
+		"mrt": result[6],
+		"latitude": str(result[7]),
+		"longitude": str(result[8]),
+		"images": json.loads(result[9])
+		}
+		data.append(dict)
+	return JSONResponse({"nextPage":next_page,"data": data})
 
 @app.get("/api/attraction/{attractionId}")
 async def api_attraction(attractionId: Annotated[int, Path(...)]):
 	try:
-		cnx = get_db_connection(password)
+		cnx = get_db_connection()
 		cursor = cnx.cursor()
-		cursor.execute("SELECT * FROM taipei_attractions WHERE id = %s", (attractionId,))
+		sql_query = """
+            SELECT t.id, t.name, t.category, t.description, t.address, t.transport, 
+                   m.name AS mrt, t.lat, t.lng, t.images
+            FROM taipei_attractions t
+            LEFT JOIN mrt_stations m ON t.mrt_id = m.id
+            WHERE t.id = %s
+        """
+		cursor.execute(sql_query, (attractionId,))
+
 		result = cursor.fetchone()
-		cursor.close()
-		cnx.close()
-		if result == None:
-			message = "景點編號不正確"
-			return JSONResponse(status_code=400, content={"error": True, "message": message})
+		
 	except Exception as e:
 		print(f"Error: {e}")
-		raise HTTPException(
-			status_code=500,
-			detail={
-				"error": True,
-				"message": "請按照情境提供對應的錯誤訊息"
-			}
-		)
-	except:
-		message = "伺服器內部錯誤"
-		return JSONResponse(status_code=500, content={"error": True, "message": message})
-	else:
-		data = {
-			"id": result[0],
-			"name": result[1],
-			"category": result[2],
-			"description": result[3],
-			"address": result[4],
-			"transport": result[5],
-			"mrt": result[6],
-			"latitude": str(result[7]),
-			"longitude": str(result[8]),
-			"images": json.loads(result[9])
-		}
-		return JSONResponse({"data": data})
+		raise JSONResponse(status_code=500, detail={"error": True, "message": "伺服器內部錯誤"})
+	
+	finally:
+		cursor.close()
+		cnx.close()
+
+	if result == None:
+			return JSONResponse(status_code=400, content={"error": True, "message": "景點編號不正確"})
+
+	data = {
+		"id": result[0],
+		"name": result[1],
+		"category": result[2],
+		"description": result[3],
+		"address": result[4],
+		"transport": result[5],
+		"mrt": result[6],
+		"latitude": str(result[7]),
+		"longitude": str(result[8]),
+		"images": json.loads(result[9])
+	}
+	return JSONResponse({"data": data})
 
 @app.get("/api/mrts")
 async def api_mrts():
 	try:
-		cnx = get_db_connection(password)
+		cnx = get_db_connection()
 		cursor = cnx.cursor()
-		cursor.execute("SELECT mrt FROM taipei_attractions WHERE mrt IS NOT NULL GROUP BY mrt ORDER BY COUNT(mrt) DESC")
+		sql_query = """
+            SELECT m.name AS mrt, COUNT(t.id) AS attraction_count
+            FROM taipei_attractions t
+            JOIN mrt_stations m ON t.mrt_id = m.id
+            WHERE t.mrt_id IS NOT NULL
+            GROUP BY m.name
+            ORDER BY attraction_count DESC
+        """
+		cursor.execute(sql_query)
 		results = cursor.fetchall()
-		cursor.close()
-		cnx.close()
 	except Exception as e:
 		print(f"Error: {e}")
-		raise HTTPException(
-            status_code=500,
-            detail={
-                "error": True,
-                "message": "請按照情境提供對應的錯誤訊息"
-            }
-        )
-	except:
-		message = "伺服器內部錯誤"
-		return JSONResponse(status_code=500, content={"error": True, "message": message})
-	else:
-		data = [mrt[0] for mrt in results]
-		return JSONResponse({"data": data})
+		raise JSONResponse(
+            status_code=500, 
+			detail={"error": True, "message": "伺服器內部錯誤"}
+			)
+	finally:
+		cursor.close()
+		cnx.close()
 
-
+	data = [mrt[0] for mrt in results]
+	return JSONResponse({"data": data})
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
@@ -151,4 +164,6 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
+
+
 
