@@ -1,16 +1,18 @@
+from datetime import datetime, timedelta, timezone
+from typing import Annotated, Optional, Union
 from dotenv import load_dotenv
 import os
 import mysql.connector
-import bcrypt
 import json
 import jwt
-import datetime
+from passlib.context import CryptContext
 from fastapi import *
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Annotated, Optional
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+
 
 load_dotenv()
 MYSQL_USER = os.getenv("MYSQL_USER"), 
@@ -23,33 +25,69 @@ ALGORITHM = os.getenv("ALGORITHM")
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-security = HTTPBearer()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def hash_password(password: str) -> str:
-    salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode(), salt).decode()
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
+class TokenData(BaseModel):
+    username: Union[str, None] = None
 
-def create_jwt_token(data: dict):
-    payload = data.copy()
-    payload["exp"] = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=os.getenv("TOKEN_EXPIRE_MINUTES"))
-    token = jwt.encode(payload, SECRET_KEY, algorithm = ALGORITHM)
-    return token
+class User(BaseModel):
+    username: str
+    email: Union[str, None] = None
+    full_name: Union[str, None] = None
+    disabled: Union[bool, None] = None
 
-def verify_jwt_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload 
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token 已過期")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="無效的 Token")
+class UserInDB(User):
+    hashed_password: str
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-    return verify_jwt_token(token)
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def get_user(db, username: str):
+    if username in db:
+        user_dict = db[username]
+        return UserInDB(**user_dict)
+
+def authenticate_user(fake_db, username: str, password: str):
+    user = get_user(fake_db, username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+# def hash_password(password: str) -> str:
+#     salt = bcrypt.gensalt()
+#     return bcrypt.hashpw(password.encode(), salt).decode()
+
+# def verify_password(plain_password: str, hashed_password: str) -> bool:
+#     return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
+
+# def create_jwt_token(data: dict):
+#     payload = data.copy()
+#     payload["exp"] = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=os.getenv("TOKEN_EXPIRE_MINUTES"))
+#     token = jwt.encode(payload, SECRET_KEY, algorithm = ALGORITHM)
+#     return token
+
+# def verify_jwt_token(token: str):
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         return payload 
+#     except jwt.ExpiredSignatureError:
+#         raise HTTPException(status_code=401, detail="Token 已過期")
+#     except jwt.InvalidTokenError:
+#         raise HTTPException(status_code=401, detail="無效的 Token")
+
+# def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+#     token = credentials.credentials
+#     return verify_jwt_token(token)
 
 def get_db_connection():
 	return mysql.connector.connect(
