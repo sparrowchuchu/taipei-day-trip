@@ -53,7 +53,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 def get_db_connection():
 	return mysql.connector.connect(
-		user = MYSQL_USER, 
+		user = MYSQL_USER[0], 
         password = MYSQL_PASSWORD,
         host = MYSQL_HOST,
         database = MYSQL_DATABASE
@@ -200,23 +200,14 @@ async def api_mrts():
 	try:
 		cnx = get_db_connection()
 		cursor = cnx.cursor()
-		sql_query = """
-            SELECT m.name AS mrt, COUNT(t.id) AS attraction_count
-            FROM taipei_attractions t
-            JOIN mrt_stations m ON t.mrt_id = m.id
-            WHERE t.mrt_id IS NOT NULL
-            GROUP BY m.name
-            ORDER BY attraction_count DESC
-        """
-		cursor.execute(sql_query)
+		cursor.execute("SELECT name FROM mrt_stations;")
 		results = cursor.fetchall()
-	except Exception as e:
-		print(f"Error: {e}")
-		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
-	finally:
 		cursor.close()
 		cnx.close()
-	data = [mrt[0] for mrt in results]
+	except Exception as e:
+		print(f"Error: {e}")
+		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})	
+	data = results
 	return JSONResponse({"data": data})
 
 
@@ -233,7 +224,6 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
-
 
 
 
