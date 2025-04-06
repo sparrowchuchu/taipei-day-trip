@@ -10,6 +10,7 @@ button[type="submit"] {
     width: 310px; height: 47px;
     font-size: 16px;
     color: var(--color-white);
+    font-weight: 700;
     border-radius: 5px;
     border: 1px solid var(--color-gray20);
     background-color: var(--color-cyan70);
@@ -31,7 +32,17 @@ button[type="submit"] {
     padding: 20px;
     background-color: white;
     border-radius: 5px;
-    border-top: 10px solid var(--color-cyan70);
+}
+
+.popup-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px; /* 邊框的高度 */
+    background: linear-gradient(to right, #92bec4, var(--color-cyan70)); 
+    border-radius: 5px 5px 0 0; 
 }
 
 #login-form, #register-form{
@@ -57,14 +68,14 @@ button[type="submit"] {
     margin: 15px;
 }
 
-.message {
+.notice {
     width: 100%;
     margin-bottom: 16px;
     font-size: 16px;
     text-align: center;
 }
 
-.message__error {
+.message {
     color: var(--color-red70);
 }
 

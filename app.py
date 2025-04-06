@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional
 from dotenv import load_dotenv
 import os
 import mysql.connector
@@ -66,23 +66,27 @@ def get_db_connection():
 
 
 @app.post("/api/user")
-async def user_signup(user: Annotated[dict, Body()]):
-	email = user.get("email")
-	password = user.get("password")
+async def user_signup( 
+	request: Request,
+	payload: Annotated[dict, Body()]
+	):
+	name = payload.get("name")
+	email = payload.get("email")
+	password = payload.get("password")
 	if not email or not password:
-		return JSONResponse(status_code=400, detail="請提供 Email 和 Password")
+		return JSONResponse(status_code=400, content={"message": "請提供 Email 和 Password"})
 	try:
 		cnx = get_db_connection()
 		cursor = cnx.cursor()
-		cursor.execute("SELECT id FROM users WHERE email = %s", (user["email"],))
+		cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
 		if cursor.fetchone():
 			cnx.close()
 			return JSONResponse(status_code=400, content={"error": True, "message": "Email 已註冊"})
-		hashed_pw = get_password_hash(user["password"])
+		hashed_pw = get_password_hash(password)
 		sql_query = """INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"""
-		cursor.execute(sql_query, (user["name"], user["email"], hashed_pw))
+		cursor.execute(sql_query, (name, email, hashed_pw))
 		cnx.commit()
-		return JSONResponse({"message": "註冊成功"})
+		return JSONResponse({"ok": True})
 	except Exception as e:
 		print(f"Error: {e}")
 		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
@@ -103,11 +107,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 	return JSONResponse(status_code=200, content={"data": user_info})
 
 @app.put("/api/user/auth")
-def user_signin(user: Annotated[dict, Body()]):
-	email = user.get("email")
-	password = user.get("password")
+def user_signin(request: Request,
+    payload: Annotated[dict, Body()]
+	):
+	email = payload.get("email")
+	password = payload.get("password")
 	if not email or not password:
-		return JSONResponse(status_code=400, detail="請提供 Email 和 Password")
+		return JSONResponse(status_code=400, content={"message": "請提供 Email 和 Password"})
 	try:
 		cnx = get_db_connection()
 		cursor = cnx.cursor(dictionary=True)
@@ -119,7 +125,7 @@ def user_signin(user: Annotated[dict, Body()]):
 		cursor.close()
 		cnx.close()
 	if not user_data or not verify_password(password, user_data["password"]):
-		return JSONResponse(status_code=401, detail="帳號或密碼錯誤")
+		JSONResponse(status_code=401, content={"message": "帳號或密碼錯誤"})
 	token = create_jwt_token({"id": user_data["id"], "name": user_data["name"], "email": user_data["email"]})
 	return {"token": token}
 

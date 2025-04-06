@@ -19,47 +19,48 @@
       <ul class="nav__list">
           <li>預定行程</li>
           <li>登入/註冊</li>
+          <li style="display:none">登出</li>
       </ul>
     </div>
     <div class="popup">
       <div class="popup-content">
-          <div id="login-form" class="data-form">
+          <div id="signin" class="data-form">
             <div class="data-form__title">登入會員帳號</div>
-            <form id="login-form-element">
+            <form name="signin-form">
               <div class="data-form__item">
-                <input type="email" id="login-email" name="email" placeholder="輸入電子郵件" required>
+                <input type="email" id="signin-email" name="email" placeholder="輸入電子郵件" required>
               </div>
               <div class="data-form__item">
-                <input type="password" id="login-password" name="password" placeholder="輸入密碼" required>
+                <input type="password" id="signin-password" name="password" placeholder="輸入密碼" required>
               </div>
               <div class="data-form__item">
                 <button type="submit">登入帳戶</button>
               </div>
             </form>
-            <div class="message">
-              <p id="login-error-message" class="message__error"></p>
-              <p>還沒有帳戶？<a href="#" id="switch-to-register">點此註冊</a></p>
+            <div class="notice">
+              <p id="signin-message" class="message"></p>
+              <p>還沒有帳戶？<a href="#" id="switch-to-signup">點此註冊</a></p>
             </div>
           </div>
-          <div id="register-form" class="data-form" style="display: none;">
+          <div id="signup" class="data-form" style="display: none;">
             <div class="data-form__title">註冊會員帳號</div>
-            <form id="register-form-element">
+            <form name="signup-form">
               <div class="data-form__item">
-                <input type="text" id="register-username" name="username" placeholder="輸入姓名" required>
+                <input type="text" id="signup-name" name="name" placeholder="輸入姓名" required>
               </div>
               <div class="data-form__item">
-                <input type="email" id="register-email" name="email" placeholder="輸入電子郵件" required>
+                <input type="email" id="signup-email" name="email" placeholder="輸入電子郵件" required>
               </div>
               <div class="data-form__item">
-                <input type="password" id="register-password" name="password" placeholder="輸入密碼" required>
+                <input type="password" id="signup-password" name="password" placeholder="輸入密碼" required>
               </div>
               <div class="data-form__item">
                 <button type="submit">註冊新帳戶</button>
               </div>  
             </form>
-            <div class="message">
-              <p id="register-error-message" class="message__error"></p>
-              <p>已經有帳戶？<a href="#" id="switch-to-login">點此登入</a></p>
+            <div class="notice">
+              <p id="signup-message" class="message"></p>
+              <p>已經有帳戶？<a href="#" id="switch-to-signin">點此登入</a></p>
             </div>
           </div>
           <span class="close-btn">&times;</span>

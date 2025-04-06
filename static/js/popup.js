@@ -1,92 +1,117 @@
-const loginRegisterBtn = document.querySelectorAll(".nav__list li")[1];
+const signinSignupBtn = document.querySelectorAll(".nav__list li")[1];
+const signOutBtn = document.querySelectorAll(".nav__list li")[2];
 const popup = document.querySelector(".popup");
 const closeBtn = document.querySelector(".close-btn");
 
-const switchToRegisterBtn = document.getElementById("switch-to-register");
-const switchToLoginBtn = document.getElementById("switch-to-login");
+const switchToSignupBtn = document.querySelector("#switch-to-signup");
+const switchToSigninBtn = document.querySelector("#switch-to-signin");
 
-const loginForm = document.getElementById("login-form");
-const registerForm = document.getElementById("register-form");
+const signin = document.querySelector("#signin");
+const signup = document.querySelector("#signup");
+const signinForm = document.forms['signin-form'];
+const signupForm = document.forms['signup-form'];
+const signinMessage = document.querySelector("#signin-message");
+const signupMessage = document.querySelector("#signup-message");
 
-const loginErrorMessage = document.getElementById("login-error-message");
-const registerErrorMessage = document.getElementById("register-error-message");
-
-// 打開彈出對話框
-loginRegisterBtn.addEventListener("click", function () {
-    popup.style.display = "flex";
+document.addEventListener("DOMContentLoaded", async function (e) {
+    const token = localStorage.getItem("token");
+    if (token) {
+        let response = await fetch("/api/user/auth", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        let data = await response.json();
+        if (data) {
+            signinSignupBtn.style.display = "none";
+            signOutBtn.style.display = "list-item";
+        } else {
+            signinSignupBtn.style.display = "list-item";
+            signOutBtn.style.display = "none";
+            localStorage.removeItem("token");
+        }
+    }
 });
 
-// 關閉彈出對話框
+
+signinSignupBtn.addEventListener("click", function () {
+    popup.style.display = "flex";
+});
 closeBtn.addEventListener("click", function () {
     popup.style.display = "none";
 });
 
-// 切換到註冊表單
-switchToRegisterBtn.addEventListener("click", function () {
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
-    loginErrorMessage.textContent = ""; // 清空錯誤信息
+switchToSignupBtn.addEventListener("click", function () {
+    signin.style.display = "none";
+    signup.style.display = "block";
+    signinMessage.textContent = ""; 
+});
+switchToSigninBtn.addEventListener("click", function () {
+    signup.style.display = "none";
+    signin.style.display = "block";
+    signupMessage.textContent = ""; 
 });
 
-// 切換到登錄表單
-switchToLoginBtn.addEventListener("click", function () {
-    registerForm.style.display = "none";
-    loginForm.style.display = "block";
-    registerErrorMessage.textContent = ""; // 清空錯誤信息
-});
-
-// 登錄表單提交事件
-document.getElementById("login-form-element").addEventListener("submit", function (e) {
+signinForm.addEventListener("submit", async function (e) {
     e.preventDefault();
-    
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
-
-    // 假設這裡是向後端發送請求來驗證用戶
-    // 使用 fetch 發送 API 請求
-    fetch("/api/user/auth", {
+    const email = signinForm.email.value;
+    const password = signinForm.password.value;
+    let response = await fetch("/api/user/auth", {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({ email, password })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload(); // 登入成功後刷新頁面
-        } else {
-            loginErrorMessage.textContent = data.message; // 顯示錯誤信息
-        }
-    });
+    let data = await response.json();
+    console.log(data);
+    if (data.token) {
+        console.log("登入成功");
+        const token = data.token;
+        localStorage.setItem("token", token);
+        signinMessage.textContent = "登入成功"; 
+        signinMessage.style.color = "green";
+        window.location.reload();
+    } else {
+        console.log("登入失敗");
+        signinMessage.textContent = data.message; 
+        signinMessage.style.color = "red"; 
+    }
 });
 
-// 註冊表單提交事件
-document.getElementById("register-form-element").addEventListener("submit", function (e) {
+signupForm.addEventListener("submit", async function (e) {
     e.preventDefault();
-    
-    const username = document.getElementById("register-username").value;
-    const email = document.getElementById("register-email").value;
-    const password = document.getElementById("register-password").value;
-
-    // 假設這裡是向後端發送請求來註冊用戶
-    fetch("/api/user", {
+    const name = signupForm.name.value;
+    const email = signupForm.email.value;
+    const password = signupForm.password.value;
+    let response = await fetch("/api/user", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username, email, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload(); // 註冊成功後刷新頁面
-        } else {
-            registerErrorMessage.textContent = data.message; // 顯示錯誤信息
-        }
+        body: JSON.stringify({ name, email, password })
     });
+    let data = await response.json();
+    if (data.ok) {
+        signupMessage.textContent = "註冊成功，請登入系統"; 
+        signupMessage.style.color = "green";
+        window.location.reload(); 
+    } else {
+        signupMessage.textContent = data.message; 
+        signupMessage.style.color = "red"; 
+    }
 });
 
+if(signOutBtn) {
+    signOutBtn.addEventListener("click", function () {
+        localStorage.removeItem("token");
+        signinSignupBtn.style.display = "list-item";
+        signOutBtn.style.display = "none";
+        window.location.reload();
+    });
+}          
 
 
 
