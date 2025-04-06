@@ -10,39 +10,26 @@ from fastapi import *
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel
+from fastapi.security import OAuth2PasswordBearer
 
 
 load_dotenv()
-MYSQL_USER = os.getenv("MYSQL_USER"), 
+
+MYSQL_USER = os.getenv("MYSQL_USER")
 MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
 MYSQL_HOST = os.getenv("MYSQL_HOST")
 MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-
-app=FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
+TOKEN_EXPIRE_MINUTES = os.getenv("TOKEN_EXPIRE_MINUTES")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+app=FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-class TokenData(BaseModel):
-    username: Union[str, None] = None
-
-class User(BaseModel):
-    username: str
-    email: Union[str, None] = None
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
-
-class UserInDB(User):
-    hashed_password: str
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -50,55 +37,40 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+def create_jwt_token(data: dict, expires_delta: timedelta | None = None):
+	to_encode = data.copy()
+	if expires_delta:
+		expire = datetime.now(timezone.utc) + expires_delta
+	else:
+		expire = datetime.now(timezone.utc) + timedelta(minutes=int(TOKEN_EXPIRE_MINUTES))
+	to_encode.update({"exp": expire})
+	return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-# def hash_password(password: str) -> str:
-#     salt = bcrypt.gensalt()
-#     return bcrypt.hashpw(password.encode(), salt).decode()
-
-# def verify_password(plain_password: str, hashed_password: str) -> bool:
-#     return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
-
-# def create_jwt_token(data: dict):
-#     payload = data.copy()
-#     payload["exp"] = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=os.getenv("TOKEN_EXPIRE_MINUTES"))
-#     token = jwt.encode(payload, SECRET_KEY, algorithm = ALGORITHM)
-#     return token
-
-# def verify_jwt_token(token: str):
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         return payload 
-#     except jwt.ExpiredSignatureError:
-#         raise HTTPException(status_code=401, detail="Token 已過期")
-#     except jwt.InvalidTokenError:
-#         raise HTTPException(status_code=401, detail="無效的 Token")
-
-# def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-#     token = credentials.credentials
-#     return verify_jwt_token(token)
-
+def decode_jwt_token(token: str) -> Optional[dict]:
+	try:
+		return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+	except jwt.ExpiredSignatureError as e:
+		print(f"Token expired: {e}")
+		return None
+	except jwt.InvalidTokenError as e:
+		print(f"Invalid token: {e}")
+		return None
+		
 def get_db_connection():
 	return mysql.connector.connect(
-		user = MYSQL_USER[0], 
+		user = MYSQL_USER, 
         password = MYSQL_PASSWORD,
         host = MYSQL_HOST,
         database = MYSQL_DATABASE
 	)
 
+
 @app.post("/api/user")
 async def user_signup(user: Annotated[dict, Body()]):
+	email = user.get("email")
+	password = user.get("password")
+	if not email or not password:
+		return JSONResponse(status_code=400, detail="請提供 Email 和 Password")
 	try:
 		cnx = get_db_connection()
 		cursor = cnx.cursor()
@@ -106,40 +78,51 @@ async def user_signup(user: Annotated[dict, Body()]):
 		if cursor.fetchone():
 			cnx.close()
 			return JSONResponse(status_code=400, content={"error": True, "message": "Email 已註冊"})
-		hashed_pw = hash_password(user.password)
+		hashed_pw = get_password_hash(user["password"])
 		sql_query = """INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"""
 		cursor.execute(sql_query, (user["name"], user["email"], hashed_pw))
+		cnx.commit()
+		return JSONResponse({"message": "註冊成功"})
 	except Exception as e:
 		print(f"Error: {e}")
+		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
 	finally:
 		cursor.close()
-		cnx.commit()
 		cnx.close()
-		return JSONResponse({"message": "註冊成功"})
-
+		
 @app.get("/api/user/auth")
-def get_user_info(current_user: dict = Depends(get_current_user)):
-    return {"user": current_user}
+def get_current_user(token: str = Depends(oauth2_scheme)):
+	decoded_token = decode_jwt_token(token)
+	if not decoded_token:
+		return JSONResponse(status_code=200, content={"data": None})
+	user_info = {
+        "id": decoded_token["id"],
+        "name": decoded_token["name"],
+        "email": decoded_token["email"]
+    }
+	return JSONResponse(status_code=200, content={"data": user_info})
 
-@app.put("api/user/auth")
+@app.put("/api/user/auth")
 def user_signin(user: Annotated[dict, Body()]):
 	email = user.get("email")
 	password = user.get("password")
 	if not email or not password:
 		return JSONResponse(status_code=400, detail="請提供 Email 和 Password")
 	try:
-		conn = get_db_connection()
-		cursor = conn.cursor(dictionary=True)
+		cnx = get_db_connection()
+		cursor = cnx.cursor(dictionary=True)
 		cursor.execute("SELECT id, name, email, password FROM users WHERE email = %s", (email,))
 		user_data = cursor.fetchone()
-		conn.close()
 	except Exception as e:
 		print(f"Error: {e}")
+	finally:
+		cursor.close()
+		cnx.close()
 	if not user_data or not verify_password(password, user_data["password"]):
 		return JSONResponse(status_code=401, detail="帳號或密碼錯誤")
 	token = create_jwt_token({"id": user_data["id"], "name": user_data["name"], "email": user_data["email"]})
 	return {"token": token}
-	
+
 
 @app.get("/api/attractions")
 async def api_attractions(page: Annotated[int, Query(ge=0)],
@@ -170,13 +153,12 @@ async def api_attractions(page: Annotated[int, Query(ge=0)],
             """
 			cursor.execute(sql_query, (limit, offset))
 		results = cursor.fetchall()
-		print(results)
 	except Exception as e:
 		print(f"Error: {e}")
 		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
 	finally:
 		cursor.close()
-		cnx.close()
+		cnx.close()	
 	if not results:
 			return JSONResponse(status_code=400, content={"error": True, "message": "查無資料"})
 	next_page = page + 1 if len(results) == limit else None 
@@ -240,12 +222,13 @@ async def api_mrts():
 		cursor = cnx.cursor()
 		cursor.execute("SELECT name FROM mrt_stations;")
 		results = cursor.fetchall()
-		cursor.close()
-		cnx.close()
 	except Exception as e:
 		print(f"Error: {e}")
 		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})	
-	data = results
+	finally:
+		cursor.close()
+		cnx.close()
+	data = [mrt for mrt in results]
 	return JSONResponse({"data": data})
 
 
@@ -262,6 +245,5 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
-
 
 
