@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async function (e) {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                "Authorization": `Bearer ${token}`
             }
         });
         let data = await response.json();
@@ -66,21 +66,17 @@ signinForm.addEventListener("submit", async function (e) {
         body: JSON.stringify({ email, password })
     })
     let data = await response.json();
-    console.log(data);
     if (data.token) {
-        console.log("登入成功");
         const token = data.token;
         localStorage.setItem("token", token);
         signinMessage.textContent = "登入成功"; 
         signinMessage.style.color = "green";
         window.location.reload();
     } else {
-        console.log("登入失敗");
         signinMessage.textContent = data.message; 
         signinMessage.style.color = "red"; 
     }
 });
-
 signupForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const name = signupForm.name.value;

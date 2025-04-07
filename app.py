@@ -32,7 +32,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+	return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -125,7 +125,7 @@ def user_signin(request: Request,
 		cursor.close()
 		cnx.close()
 	if not user_data or not verify_password(password, user_data["password"]):
-		JSONResponse(status_code=401, content={"message": "帳號或密碼錯誤"})
+		return JSONResponse(status_code=401, content={"message": "帳號或密碼錯誤"})
 	token = create_jwt_token({"id": user_data["id"], "name": user_data["name"], "email": user_data["email"]})
 	return {"token": token}
 
