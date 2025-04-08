@@ -2,7 +2,7 @@ const itemList = document.querySelector('.list-bar__items');
 const leftBtn = document.querySelector('.list-bar__left-btn');
 const rightBtn = document.querySelector('.list-bar__right-btn');
 const attractionGrid = document.querySelector('.attraction-grid');
-const loadTrigger = document.querySelector('.loadTrigger');
+const loadTrigger = document.querySelector('.load-trigger');
 const searchInput = document.querySelector('.search-bar__input');
 const searchBtn = document.querySelector('.search-bar__button');
 let keyword = '';
@@ -111,12 +111,12 @@ const searchKeyword = async () =>{
   observer.observe(loadTrigger);
 }
 
-if (itemList){
+if (window.location.pathname === '/') {
   window.addEventListener('DOMContentLoaded', async () => {
     let mrtsData = await getApiMrts();
-    setListItem(mrtsData);
     let apiUrl = `./api/attractions?page=${nextPage}`;
     let attractions = await getApiAttractions(apiUrl);
+    setListItem(mrtsData);
     setAttractionItem(attractions);
     observer.observe(loadTrigger);
   });
@@ -146,7 +146,4 @@ if(searchBtn && searchInput){
     }
   });
 }
-
-
-
 

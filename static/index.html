@@ -4,20 +4,67 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="stylesheet" href="/static/css/popup.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
   <script defer src="/static/js/api.js"></script>
+  <script defer src="/static/js/popup.js"></script>
   <title>Index</title>
 </head>
 <body>
   <nav>
     <div class="nav__container">
       <a class="nav__title" href="/">台北一日遊</a>
-      <ul class="mod-desktop nav__list">
+      <ul class="nav__list">
           <li>預定行程</li>
           <li>登入/註冊</li>
+          <li style="display:none">登出</li>
       </ul>
+    </div>
+    <div class="popup">
+      <div class="popup-content">
+          <div id="signin" class="data-form">
+            <div class="data-form__title">登入會員帳號</div>
+            <form name="signin-form">
+              <div class="data-form__item">
+                <input type="email" id="signin-email" name="email" placeholder="輸入電子郵件" required>
+              </div>
+              <div class="data-form__item">
+                <input type="password" id="signin-password" name="password" placeholder="輸入密碼" required>
+              </div>
+              <div class="data-form__item">
+                <button type="submit">登入帳戶</button>
+              </div>
+            </form>
+            <div class="notice">
+              <p id="signin-message" class="message"></p>
+              <p>還沒有帳戶？<a href="#" id="switch-to-signup">點此註冊</a></p>
+            </div>
+          </div>
+          <div id="signup" class="data-form" style="display: none;">
+            <div class="data-form__title">註冊會員帳號</div>
+            <form name="signup-form">
+              <div class="data-form__item">
+                <input type="text" id="signup-name" name="name" placeholder="輸入姓名" required>
+              </div>
+              <div class="data-form__item">
+                <input type="email" id="signup-email" name="email" placeholder="輸入電子郵件" required>
+              </div>
+              <div class="data-form__item">
+                <input type="password" id="signup-password" name="password" placeholder="輸入密碼" required>
+              </div>
+              <div class="data-form__item">
+                <button type="submit">註冊新帳戶</button>
+              </div>  
+            </form>
+            <div class="notice">
+              <p id="signup-message" class="message"></p>
+              <p>已經有帳戶？<a href="#" id="switch-to-signin">點此登入</a></p>
+            </div>
+          </div>
+          <span class="close-btn">&times;</span>
+      </div>
     </div>
   </nav>
   <header>
@@ -57,7 +104,7 @@
     <div class="attraction-grid">
       <!-- Append attraction-cards here -->
     </div>
-    <div class="loadTrigger"></div>
+    <div class="load-trigger"></div>
   </main>
   <footer>
     <div class="copyright">

@@ -1,0 +1,92 @@
+input[type="text"], input[type="email"], input[type="password"]  {
+    width: 280px; height: 17px;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid var(--color-gray20);
+}
+
+button[type="submit"] {
+    width: 310px; height: 47px;
+    font-size: 16px;
+    color: var(--color-white);
+    font-weight: 700;
+    border-radius: 5px;
+    border: 1px solid var(--color-gray20);
+    background-color: var(--color-cyan70);
+    cursor: pointer;
+}
+
+.popup {
+    width: 100%; height: 100%;
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    position: relative;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.popup-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px; /* 邊框的高度 */
+    background: linear-gradient(to right, #92bec4, var(--color-cyan70)); 
+    border-radius: 5px 5px 0 0; 
+}
+
+#login-form, #register-form{
+    width: 340px; 
+}
+
+.data-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.data-form__title{
+    width: 100%;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.data-form__item {
+    width: 310px; height: 47px;
+    margin: 15px;
+}
+
+.notice {
+    width: 100%;
+    margin-bottom: 16px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.message {
+    color: var(--color-red70);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+
+
+

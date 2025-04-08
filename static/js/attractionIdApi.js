@@ -2,11 +2,10 @@ const bookingForm = document.forms['booking-form'];
 const prevBtn = document.querySelector('.carousel__previous-flipper');
 const nextBtn = document.querySelector('.carousel__next-flipper');
 const imgContainer = document.querySelector('.carousel__container');
-const dotContainer = document.querySelector('.carousel__dotlist');
-const url = new URL(window.location.href);
 let currentIndex = 0;
 
-const setAttractionInfo = async (attraction) => {
+const setAttractionInfo = (attraction) => {
+    const dotContainer = document.querySelector('.carousel__dotlist');
     let data = attraction.data;
     data.images.forEach((src, index) => {
         let img = document.createElement("img");
@@ -28,14 +27,14 @@ const setAttractionInfo = async (attraction) => {
         dotContainer.appendChild(dot);
     });
     document.querySelector('.right__title').innerText = data.name;
-    document.querySelector('.right__sub-title').innerText = data.category + ' at ' + data.mrt;
+    document.querySelector('.right__sub-title').innerText = `${data.category} at ${data.mrt}`;
     document.querySelectorAll('.article__info')[0].innerText = data.description;
     document.querySelectorAll('.article__info')[1].innerText = data.address;
     document.querySelectorAll('.article__info')[2].innerText = data.transport;
 };
 
 const updateCarousel = (index) => {
-    let dotList = document.querySelectorAll('.dotlist__dot svg circle');
+    const dotList = document.querySelectorAll('.dotlist__dot svg circle');
     currentIndex = index;
     imgContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
     dotList.forEach((dot, i) => {
@@ -55,7 +54,7 @@ prevBtn.addEventListener('click', () => {
 });
 
 bookingForm.addEventListener('change', () => {
-    let infoPrice = document.querySelector('.info__price');
+    const infoPrice = document.querySelector('.info__price');
     if(bookingForm.time.value === 'morning'){
         infoPrice.textContent = '新台幣 2000 元';
     }else if (bookingForm.time.value === 'afternoon') {
@@ -64,7 +63,8 @@ bookingForm.addEventListener('change', () => {
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
-    let apiUrl = url.pathname.replace('/attraction/', '/api/attraction/');
+    let path = window.location.pathname;
+    let apiUrl = `/api${path}`;
     attraction = await getApiAttractions(apiUrl);
     setAttractionInfo(attraction);
 });
