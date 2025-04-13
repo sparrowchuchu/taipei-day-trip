@@ -1,7 +1,7 @@
 const deleteBtn = document.querySelector(".info__del-icon");
 let user = "user_name";
 
-let renderBooking = (data) => {
+const renderBooking = (data) => {
     if(data === null) {
         console.log("沒有預訂資料");
         let bookingContainer = document.querySelector(".booking__container")
@@ -40,8 +40,7 @@ let renderBooking = (data) => {
         document.querySelectorAll(".info__subtitle")[5].querySelector("span").textContent = `總價：新台幣 ${price} 元`;
     }
 }
-  
-let deleteBooking = async() => {
+const deleteBooking = async() => {
     try {
         const response = await fetch("/api/booking", {
         method: "DELETE",
@@ -58,7 +57,6 @@ let deleteBooking = async() => {
         console.error("Error deleting booking:", error);
     }
 }
-
 
 deleteBtn.addEventListener("click", () => {
     const confirmDelete = confirm("確定要刪除這筆預訂嗎？");

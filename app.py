@@ -265,7 +265,7 @@ async def get_booking(request: Request):
 		cursor.execute("SELECT * FROM bookings WHERE user_id = %s LIMIT 1", (user_id,))
 		booking = cursor.fetchone()
 		if not booking:
-			return JSONResponse(status_code=200, content={"ok":True, "user": user_name, "data": None})
+			return JSONResponse(status_code=200, content={"ok":True, "data": None})
 		cursor.execute("""
             SELECT id, name, address, images 
             FROM taipei_attractions 
@@ -286,7 +286,7 @@ async def get_booking(request: Request):
             "time": booking["time"],
             "price": booking["price"]
         }
-		return JSONResponse(status_code=200, content={"ok":True, "user": user_name, "data": response_data})
+		return JSONResponse(status_code=200, content={"ok":True, "user":user_name, "data": response_data})
 	except Exception as e:
 		print(f"Get booking error: {e}")
 		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
@@ -368,5 +368,7 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
+
+
 
 
