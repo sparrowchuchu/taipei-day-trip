@@ -11,6 +11,7 @@
     --font-28px: 28px;
     --font-16px: 16px;
     --font-w700: 700;
+    --font-w500: 500;
 }
 
 a, a:hover, a:visited, a:link, a:active {
@@ -21,6 +22,7 @@ a, a:hover, a:visited, a:link, a:active {
 body{
     margin:0 auto; padding:0px;
     overscroll-behavior-x: none;
+    overflow-x: hidden;
     box-sizing: border-box;
     font-size: var(--font-16px);
     font-family: "Noto Sans TC", sans-serif;

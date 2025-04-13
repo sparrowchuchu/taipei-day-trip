@@ -10,7 +10,8 @@ from fastapi import *
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.security import OAuth2PasswordBearer
+# from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
 
 
 load_dotenv()
@@ -24,8 +25,15 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 TOKEN_EXPIRE_MINUTES = os.getenv("TOKEN_EXPIRE_MINUTES")
 
+class BookingData(BaseModel):
+	attractionId: int
+	date: str
+	time: str
+	price: int
+	
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app=FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -67,7 +75,6 @@ def get_db_connection():
 
 @app.post("/api/user")
 async def user_signup( 
-	request: Request,
 	payload: Annotated[dict, Body()]
 	):
 	name = payload.get("name")
@@ -95,7 +102,11 @@ async def user_signup(
 		cnx.close()
 		
 @app.get("/api/user/auth")
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(request: Request):
+	auth_header = request.headers.get("Authorization")
+	if not auth_header or not auth_header.startswith("Bearer "):
+		return JSONResponse(status_code=200, content={"data": None})
+	token = auth_header[7:]  # Remove "Bearer "
 	decoded_token = decode_jwt_token(token)
 	if not decoded_token:
 		return JSONResponse(status_code=200, content={"data": None})
@@ -237,6 +248,112 @@ async def api_mrts():
 	data = [mrt for mrt in results]
 	return JSONResponse({"data": data})
 
+@app.get("/api/booking")
+async def get_booking(request: Request):
+	auth_header = request.headers.get("Authorization")
+	if not auth_header or not auth_header.startswith("Bearer "):
+		return JSONResponse(status_code=403, content={"error": True, "message": "請重新登入"})
+	token = auth_header[7:]
+	decoded_token = decode_jwt_token(token)
+	if not decoded_token:
+		return JSONResponse(status_code=403, content={"error": True, "message": "請重新登入"})
+	user_id = decoded_token["id"]
+	user_name = decoded_token["name"]
+	try:
+		cnx = get_db_connection()
+		cursor = cnx.cursor(dictionary=True)
+		cursor.execute("SELECT * FROM bookings WHERE user_id = %s LIMIT 1", (user_id,))
+		booking = cursor.fetchone()
+		if not booking:
+			return JSONResponse(status_code=200, content={"ok":True, "user": user_name, "data": None})
+		cursor.execute("""
+            SELECT id, name, address, images 
+            FROM taipei_attractions 
+            WHERE id = %s
+        """, (booking["attraction_id"],))
+		attraction = cursor.fetchone()
+		if not attraction:
+			return JSONResponse(status_code=500, content={"error": True, "message": "景點資訊取得失敗"})
+
+		response_data = {
+            "attraction": {
+                "id": attraction["id"],
+                "name": attraction["name"],
+                "address": attraction["address"],
+                "image": json.loads(attraction["images"])[0]  # 取第一張圖
+            },
+            "date": booking["date"].isoformat(),  # 日期轉字串
+            "time": booking["time"],
+            "price": booking["price"]
+        }
+		return JSONResponse(status_code=200, content={"ok":True, "user": user_name, "data": response_data})
+	except Exception as e:
+		print(f"Get booking error: {e}")
+		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})
+	finally:
+		cursor.close()
+		cnx.close()
+
+@app.post("/api/booking")
+async def create_booking(request: Request, booking: BookingData):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return JSONResponse(status_code=403, content={"error": True, "message": "未登入使用者"})
+    token = auth_header[7:]
+    decoded_token = decode_jwt_token(token)
+    if not decoded_token:
+        return JSONResponse(status_code=403, content={"error": True, "message": "請先登入會員"})
+    user_id = decoded_token["id"]
+    if not booking.attractionId or not booking.date or not booking.time or not booking.price:
+        return JSONResponse(status_code=400, content={"error": True, "message": "請提供完整的預訂資訊"})
+    try:
+        cnx = get_db_connection()
+        cursor = cnx.cursor()
+        cursor.execute("DELETE FROM bookings WHERE user_id = %s", (user_id,))
+        insert_query = """
+            INSERT INTO bookings (user_id, attraction_id, date, time, price)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            user_id,
+            booking.attractionId,
+            booking.date,
+            booking.time,
+            booking.price
+        ))
+        cnx.commit()
+    except Exception as e:
+        print(f"Create booking error: {e}")
+        return JSONResponse(status_code=500, content={"error": True, "message": "伺服器錯誤"})
+    finally:
+        cursor.close()
+        cnx.close()
+    return JSONResponse(status_code=200, content={"ok": True})
+
+
+@app.delete("/api/booking")
+def delete_booking(request: Request):
+	auth_header = request.headers.get("Authorization")
+	if not auth_header or not auth_header.startswith("Bearer "):
+		return JSONResponse(status_code=401, content={"error": True, "message": "未登入使用者"})
+	token = auth_header[7:]
+	decoded_token = decode_jwt_token(token)
+	if not decoded_token:
+		return JSONResponse(status_code=401, content={"error": True, "message": "無效的登入資訊"})
+	user_id = decoded_token["id"]
+	try:
+		cnx = get_db_connection()
+		cursor = cnx.cursor()
+		cursor.execute("DELETE FROM bookings WHERE user_id = %s", (user_id,))
+		cnx.commit()
+	except Exception as e:
+		print(f"Delete booking error: {e}")
+		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器錯誤"})
+	finally:
+		cursor.close()
+		cnx.close()
+	return JSONResponse(status_code=200, content={"ok": True})
+
 
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
@@ -251,4 +368,5 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
+
 

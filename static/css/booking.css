@@ -1,0 +1,120 @@
+main{
+    font-weight: var(--font-w500);
+}
+
+.booking__container{
+    width: calc(var(--content-max-weight) - 200px);
+    margin: 0 auto;
+}
+
+.booking__item{
+    border-bottom: 1px solid var(--color-gray20);
+    padding: 30px 10px;
+}
+.booking__item:last-child {
+    margin-right: 110px;
+    display: flex;
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+.booking__title{
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.booking__attraction{
+    position: relative;
+    width: 100%;
+    display: flex;
+    padding: 10px;
+}
+
+.attraction__img{
+    width: 250px; height: 200px;
+    object-fit: cover;
+}
+
+.attraction__info{
+    padding-left: 30px;
+}
+
+.info__del-icon{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+.info__title{
+    color: var(--color-cyan70);
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+.info__content{
+    margin-bottom: 10px;
+}
+
+.info__subtitle{
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+.item__content{
+    margin-bottom: 15px;
+}
+
+.item__content> input{
+    width: 180px; height: 18px;
+    padding: 10px;
+    border: 1px solid var(--color-gray20);
+    border-radius: 5px;
+}
+
+.booking__submit{
+    margin-left: auto;
+}
+
+.booking__btn{
+    margin-top: 22px;
+    padding: 10px 20px;
+    color: var(--color-white);
+    font-size: 19px;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    background-color: var(--color-cyan70);
+    border: none;
+    border-radius: 5px;
+}
+
+
+@media screen and (max-width:1000px){
+    :root {
+        --content-max-weight: 100vw;
+    }
+    .booking__container{
+        width: calc(var(--content-max-weight) - 20px);
+    }
+}
+
+@media screen and (max-width:600px){
+    .booking__attraction{
+        flex-direction: column;
+    }
+    .attraction__img{
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    .attraction__info{
+        padding-left: 0px;
+    }
+    .info__del-icon{
+        position: static;
+        width: 30px;
+        margin-left: auto;
+    }
+}
+

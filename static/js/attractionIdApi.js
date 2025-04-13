@@ -3,6 +3,39 @@ const prevBtn = document.querySelector('.carousel__previous-flipper');
 const nextBtn = document.querySelector('.carousel__next-flipper');
 const imgContainer = document.querySelector('.carousel__container');
 let currentIndex = 0;
+let attraction;
+
+bookingForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const date = bookingForm.date.value;
+    const time = bookingForm.time.value;
+    const price = document.querySelector('.info__price').textContent.split(' ')[1];
+    const token = localStorage.getItem("token");
+    try {
+        const response = await fetch('/api/booking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                user_id: localStorage.getItem("userId"),
+                attractionId: attraction.data.id,
+                date,
+                time,
+                price
+            })
+        });
+        const result = await response.json();
+        if (result.ok) {
+            window.location.href = '/booking';
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
 
 const setAttractionInfo = (attraction) => {
     const dotContainer = document.querySelector('.carousel__dotlist');
@@ -68,5 +101,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     attraction = await getApiAttractions(apiUrl);
     setAttractionInfo(attraction);
 });
+
+
+
+
 
 
