@@ -257,6 +257,7 @@ async def get_booking(request: Request):
 	decoded_token = decode_jwt_token(token)
 	if not decoded_token:
 		return JSONResponse(status_code=403, content={"error": True, "message": "請重新登入"})
+	print(decoded_token)
 	user_id = decoded_token["id"]
 	user_name = decoded_token["name"]
 	try:
@@ -265,7 +266,14 @@ async def get_booking(request: Request):
 		cursor.execute("SELECT * FROM bookings WHERE user_id = %s LIMIT 1", (user_id,))
 		booking = cursor.fetchone()
 		if not booking:
-			return JSONResponse(status_code=200, content={"ok":True, "data": None})
+			response_data = {
+				"user": user_name,
+				"attraction": None,
+				"date": None,
+				"time": None,
+				"price": None
+			}
+			return JSONResponse(status_code=200, content={"ok":True, "data": response_data})
 		cursor.execute("""
             SELECT id, name, address, images 
             FROM taipei_attractions 
@@ -276,6 +284,7 @@ async def get_booking(request: Request):
 			return JSONResponse(status_code=500, content={"error": True, "message": "景點資訊取得失敗"})
 
 		response_data = {
+			"user":user_name, 
             "attraction": {
                 "id": attraction["id"],
                 "name": attraction["name"],
@@ -286,7 +295,7 @@ async def get_booking(request: Request):
             "time": booking["time"],
             "price": booking["price"]
         }
-		return JSONResponse(status_code=200, content={"ok":True, "user":user_name, "data": response_data})
+		return JSONResponse(status_code=200, content={"ok":True, "data": response_data})
 	except Exception as e:
 		print(f"Get booking error: {e}")
 		return JSONResponse(status_code=500, content={"error": True, "message": "伺服器內部錯誤"})

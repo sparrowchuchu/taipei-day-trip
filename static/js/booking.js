@@ -1,28 +1,32 @@
 const deleteBtn = document.querySelector(".info__del-icon");
-let user = "user_name";
 
 const renderBooking = (data) => {
-    if(data === null) {
+    console.log(data);
+    if(data.attraction === null) {
         console.log("沒有預訂資料");
+        const user = data.user;
         let bookingContainer = document.querySelector(".booking__container")
         let newContainer = document.createElement("div");
+        let newLastContainer = document.createElement("div");
         let titleDiv = document.createElement("div");
         let infoDiv = document.createElement("div");
         newContainer.className = "booking__item";
+        // newContainer.style.marginRight = "110px";
         titleDiv.className = "booking__title";
         titleDiv.textContent = `您好，${user}，待預定的行程如下`;  
-        infoDiv.className = "item__content";
         infoDiv.textContent = "目前沒有任何待預訂的行程";
         
-        while (bookingContainer.childNodes.length > 2) {
+        while (bookingContainer.firstChild) {
             console.log(bookingContainer.firstChild);
             bookingContainer.removeChild(bookingContainer.firstChild);
         }
         newContainer.appendChild(titleDiv);
         newContainer.appendChild(infoDiv);
-        bookingContainer.insertBefore(newContainer, bookingContainer.lastElementChild);
+        bookingContainer.appendChild(newContainer);
+        bookingContainer.appendChild(newLastContainer);
     } else {
         const {
+            user, 
             attraction,
             date,
             time,
@@ -78,7 +82,6 @@ document.addEventListener("DOMContentLoaded", async() => {
         });
         const result = await response.json();
         console.log(result);
-        user = result.user;
         renderBooking(result.data);
     } catch (error) {
         console.error("Error fetching booking data:", error);
