@@ -30,7 +30,8 @@ bookingForm.addEventListener('submit', async (event) => {
         if (result.ok) {
             window.location.href = '/booking';
         } else {
-            alert(result.message);
+            // alert(result.message);
+            popup.style.display = "flex";
         }
     } catch (error) {
         console.error('Error:', error);

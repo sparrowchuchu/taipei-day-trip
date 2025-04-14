@@ -11,13 +11,10 @@ const renderBooking = (data) => {
         let titleDiv = document.createElement("div");
         let infoDiv = document.createElement("div");
         newContainer.className = "booking__item";
-        // newContainer.style.marginRight = "110px";
         titleDiv.className = "booking__title";
         titleDiv.textContent = `您好，${user}，待預定的行程如下`;  
-        infoDiv.textContent = "目前沒有任何待預訂的行程";
-        
+        infoDiv.textContent = "目前沒有任何待預訂的行程"; 
         while (bookingContainer.firstChild) {
-            console.log(bookingContainer.firstChild);
             bookingContainer.removeChild(bookingContainer.firstChild);
         }
         newContainer.appendChild(titleDiv);
