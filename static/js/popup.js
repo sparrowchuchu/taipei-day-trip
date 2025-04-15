@@ -1,7 +1,9 @@
+const bookingBtn = document.querySelectorAll(".nav__list li")[0];
 const signinSignupBtn = document.querySelectorAll(".nav__list li")[1];
 const signOutBtn = document.querySelectorAll(".nav__list li")[2];
 const popup = document.querySelector(".popup");
 const closeBtn = document.querySelector(".close-btn");
+const token = localStorage.getItem("token");
 
 const switchToSignupBtn = document.querySelector("#switch-to-signup");
 const switchToSigninBtn = document.querySelector("#switch-to-signin");
@@ -14,7 +16,6 @@ const signinMessage = document.querySelector("#signin-message");
 const signupMessage = document.querySelector("#signup-message");
 
 document.addEventListener("DOMContentLoaded", async function (e) {
-    const token = localStorage.getItem("token");
     if (token) {
         let response = await fetch("/api/user/auth", {
             method: "GET",
@@ -35,7 +36,13 @@ document.addEventListener("DOMContentLoaded", async function (e) {
     }
 });
 
-
+bookingBtn.addEventListener("click", function () {
+    if (token) {
+        window.location.href = "/booking";
+    } else {
+        popup.style.display = "flex";
+    }
+});
 signinSignupBtn.addEventListener("click", function () {
     popup.style.display = "flex";
 });
@@ -108,7 +115,5 @@ if(signOutBtn) {
         window.location.reload();
     });
 }          
-
-
 
 

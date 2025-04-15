@@ -119,7 +119,7 @@ label{
 }
 
 .content__btn{
-    width: 154px; height: 36px;
+    padding: 10px 20px;
     color: var(--color-white);
     font-size: 19px;
     display: flex;
@@ -178,4 +178,7 @@ label{
         gap: 9px;
     }
 }
+
+
+
 

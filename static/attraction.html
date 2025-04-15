@@ -103,9 +103,9 @@
         <div class="right__content">
           <div class="content__title">訂購導覽行程</div>
           <div class="content__info">以此景點為中心的一日行程，帶您探索城市角落故事</div>
-          <form name="booking-form" action="/booking" method="POST">
+          <form name="booking-form" action="/api/booking" method="POST">
             <div class="content__info">選擇日期：
-              <input type="date">
+              <input type="date" name="date">
             </div>
             <div class="content__info">選擇時間：
               <input type="radio" id="morning" name="time" value="morning" checked><label for="morning">上半天</label>
@@ -140,3 +140,5 @@
   </footer>
 </body>
 </html>
+
+
